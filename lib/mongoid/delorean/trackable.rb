@@ -39,14 +39,21 @@ module Mongoid
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
 
-          Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes, action: action)
+          tracker = Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes, action: action)
           self.version = _version
 
-          if action == 'save' || action == 'update'
-            # save _changes to record
-          end
-
           @__track_changes = false
+
+          if action == 'create' || action == 'update'
+            v = _changes.delete("version")
+            attr_changes = self[Mongoid::Delorean.config.attr_changes_name] || []
+            attr_changes << {
+              version: _version,
+              changes: _changes,
+              created_at: tracker.created_at,
+            }
+            self[Mongoid::Delorean.config.attr_changes_name] = attr_changes
+          end
         end
 
         true
