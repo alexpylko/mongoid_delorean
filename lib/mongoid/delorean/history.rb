@@ -11,6 +11,7 @@ module Mongoid::Delorean
       field :version, type: Integer, default: 0
       field :altered_attributes, type: Hash, default: {}
       field :full_attributes, type: Hash, default: {}
+      field :action, type: String, default: ''
 
       Mongoid::Delorean.config.tracker_class_name = name.tableize.singularize.to_sym
     end

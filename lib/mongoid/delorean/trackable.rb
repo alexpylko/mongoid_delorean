@@ -5,8 +5,11 @@ module Mongoid
       def self.included(klass)
         super
         klass.field :version, type: Integer, default: 0
-        klass.before_save :save_version
+        klass.before_create :save_version_before_create
+        klass.before_update :save_version_before_update
+        klass.before_destroy :save_version_before_destroy
         klass.after_save :after_save_version
+        klass.after_destroy :after_destroy_version
         klass.send(:include, Mongoid::Delorean::Trackable::CommonInstanceMethods)
       end
 
@@ -14,7 +17,19 @@ module Mongoid
         Mongoid::Delorean.tracker_class.where(original_class: self.class.name, original_class_id: self.id)
       end
 
-      def save_version
+      def save_version_before_create
+        save_version('create')
+      end
+
+      def save_version_before_update
+        save_version('update')
+      end
+
+      def save_version_before_destroy
+        save_version('destroy')
+      end
+
+      def save_version(action = 'update')
         if self.track_history?
           last_version = self.versions.last
           _version = last_version ? last_version.version + 1 : 1
@@ -24,8 +39,12 @@ module Mongoid
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
 
-          Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
+          Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes, action: action)
           self.version = _version
+
+          if action == 'save' || action == 'update'
+            # save _changes to record
+          end
 
           @__track_changes = false
         end
@@ -34,6 +53,10 @@ module Mongoid
       end
 
       def after_save_version
+        @__track_changes = Mongoid::Delorean.config.track_history
+      end
+
+      def after_destroy_version
         @__track_changes = Mongoid::Delorean.config.track_history
       end
 

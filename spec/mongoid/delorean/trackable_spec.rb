@@ -12,6 +12,14 @@ describe Mongoid::Delorean::Trackable do
       }.to change(HistoryTracker, :count).by(1)
     end
 
+    it "track a deleted object" do
+      u = User.create!(name: "Mark")
+
+      expect {
+        u.destroy
+      }.to change(HistoryTracker, :count).by(1)
+    end
+
     it "sets the first version to 1" do
       u = User.create!(name: "Mark")
       u.version.should eql(1)
@@ -56,7 +64,7 @@ describe Mongoid::Delorean::Trackable do
       u = User.create!(name: "Mark")
 
       version = u.versions.first
-      version.full_attributes.should eql({"_id"=>u.id, "version"=>1, "name"=>"Mark"})
+      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>u.id, "version"=>1, "name"=>"Mark"})
 
       u.update_attributes(age: 36)
 
@@ -171,7 +179,7 @@ describe Mongoid::Delorean::Trackable do
       a = Article.create!(name: "My Article")
 
       version = a.versions.first
-      version.full_attributes.should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[], "authors" => []})
+      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[], "authors" => []})
 
       a.update_attributes(summary: "Summary about the article")
 
@@ -185,7 +193,7 @@ describe Mongoid::Delorean::Trackable do
       a.save!
 
       version = a.versions.first
-      version.full_attributes.should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[{"_id"=>page.id, "name"=>"Page 1", "sections"=>[]}], "authors" => []})
+      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[{"_id"=>page.id, "name"=>"Page 1", "sections"=>[]}], "authors" => []})
 
       a.update_attributes(summary: "Summary about the article")
 
