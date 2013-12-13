@@ -4,7 +4,7 @@ A simple Mongoid 3 versioning system that works with embedded documents.
 
 Tracking document changes can be really important to a lot of systems, unfortunately all of the Mongoid versioning plugins either only work with Mongoid 2.x, don't handle embedded document changes, or worse, just don't work. <code>Mongoid::Delorean</code> solves those problems.
 
-<code>Mongoid::Delorean</code> is a simple plugin that does just what it sets out to do. It stores each version of your document as you make changes and then allows you to revert to earlier versions of the document. 
+<code>Mongoid::Delorean</code> is a simple plugin that does just what it sets out to do. It stores each version of your document as you make changes and then allows you to revert to earlier versions of the document.
 
 If this wasn't great already, <code>Mongoid::Delorean</code> will even track changes made to any embedded documents, or documents that those embedded documents may have, and so on.
 
@@ -31,6 +31,10 @@ Now, when you save, or update, the parent (or any of the embedded documents) a n
 ### Example
 
 <pre><code>
+class HistoryTracker
+  include Mongoid::Delorean::History
+end
+
 class Article
   include Mongoid::Document
   include Mongoid::Timestamps

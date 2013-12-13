@@ -1,7 +1,8 @@
-module Mongoid
-  module Delorean
-    class History
+module Mongoid::Delorean
+  module History
+    extend ActiveSupport::Concern
 
+    included do
       include Mongoid::Document
       include Mongoid::Timestamps
 
@@ -11,6 +12,7 @@ module Mongoid
       field :altered_attributes, type: Hash, default: {}
       field :full_attributes, type: Hash, default: {}
 
+      Mongoid::Delorean.config.tracker_class_name = name.tableize.singularize.to_sym
     end
   end
 end

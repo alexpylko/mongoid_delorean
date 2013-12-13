@@ -1,15 +1,15 @@
 require 'spec_helper'
 
 describe Mongoid::Delorean::Trackable do
-  
+
   context "simple document" do
-  
+
     it "creates a history object" do
       expect {
         expect {
           u = User.create!(name: "Mark")
         }.to change(User, :count).by(1)
-      }.to change(Mongoid::Delorean::History, :count).by(1)
+      }.to change(HistoryTracker, :count).by(1)
     end
 
     it "sets the first version to 1" do
@@ -73,7 +73,7 @@ describe Mongoid::Delorean::Trackable do
     end
 
     describe "#without_history_tracking" do
-      
+
       it "it doesn't track the history of the save" do
         expect {
           expect {
@@ -82,13 +82,13 @@ describe Mongoid::Delorean::Trackable do
               u.save!
             end
           }.to change(User, :count).by(1)
-        }.to_not change(Mongoid::Delorean::History, :count).by(1)
+        }.to_not change(HistoryTracker, :count).by(1)
       end
 
     end
 
     describe '#revert!' do
-      
+
       it "reverts to the last version" do
         u = User.create!(name: "Mark")
         u.update_attributes(age: 36)
@@ -271,7 +271,7 @@ describe Mongoid::Delorean::Trackable do
     end
 
     describe '#revert!' do
-      
+
       it "reverts to the last version" do
         a = Article.create!(name: "My Article")
         a.pages.create!(name: "Page 1")
@@ -309,7 +309,7 @@ describe Mongoid::Delorean::Trackable do
       end
 
     end
-    
+
   end
 
 end

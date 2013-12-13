@@ -14,6 +14,9 @@ module Mongoid
       yield @config if block_given?
       return @config
     end
-    
+
+    def self.tracker_class
+      @tracker_class ||= config.tracker_class_name.to_s.classify.constantize
+    end
   end
 end

@@ -1,3 +1,7 @@
+class HistoryTracker
+  include Mongoid::Delorean::History
+end
+
 class Section
   include Mongoid::Document
   include Mongoid::Timestamps

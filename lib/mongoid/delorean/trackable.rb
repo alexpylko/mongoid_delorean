@@ -11,7 +11,7 @@ module Mongoid
       end
 
       def versions
-        Mongoid::Delorean::History.where(original_class: self.class.name, original_class_id: self.id)
+        Mongoid::Delorean.tracker_class.where(original_class: self.class.name, original_class_id: self.id)
       end
 
       def save_version
@@ -24,7 +24,7 @@ module Mongoid
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
 
-          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
+          Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
           self.version = _version
 
           @__track_changes = false
