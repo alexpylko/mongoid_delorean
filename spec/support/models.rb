@@ -18,6 +18,7 @@ class Article
   field :publish_year, type: String
 
   embeds_many :pages
+  embeds_many :authors, cascade_callbacks: true
 
   validates :publish_year, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 end
@@ -34,6 +35,15 @@ class Page
   embeds_one :footer
 
   validates :number, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+end
+
+class Author
+  include Mongoid::Document
+  include Mongoid::Timestamps
+
+  field :name, type: String
+
+  embedded_in :article, inverse_of: :authors
 end
 
 class Footer
