@@ -5,6 +5,8 @@ module Mongoid
       def self.included(klass)
         super
         klass.field :version, type: Integer, default: 0
+        klass.field Mongoid::Delorean.config.attr_changes_name, type: Array, default: []
+
         klass.before_create :save_version_before_create
         klass.before_update :save_version_before_update
         klass.before_destroy :save_version_before_destroy
