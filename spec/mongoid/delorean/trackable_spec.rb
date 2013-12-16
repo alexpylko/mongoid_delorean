@@ -59,6 +59,14 @@ describe Mongoid::Delorean::Trackable do
       version.altered_attributes.should_not include(Mongoid::Delorean.config.attr_changes_name.to_s)
     end
 
+    it "save attr_changes to record" do
+      u = User.create!(name: "Mark")
+      u.update_attributes(age: 36)
+      version = u.versions.last
+      u.attr_changes.blank?.should be_false
+      u.attr_changes.first[:changes].should eql({"age" => [nil, 36]})
+    end
+
     it "tracks the changes that were made" do
       u = User.create!(name: "Mark")
       version = u.versions.first
