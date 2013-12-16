@@ -261,6 +261,22 @@ describe Mongoid::Delorean::Trackable do
       a.version.should eql(2)
     end
 
+    describe "attr_changes for complex object" do
+      it "embeds with cascade callbacks" do
+        a = Article.new(name: "Article 1")
+        a.authors.build(name: "name1")
+        a.save!
+
+        a.authors.first.name = "name2"
+        a.save!
+
+        a.reload
+        a.attr_changes.last["changes"]["authors"].should eql(
+          [{"name"=>["name1", "name2"]}]
+        )
+      end
+    end
+
     it "saves parent versions when saving embedded documents multiple levels deep" do
       a = Article.new(name: "Article 1")
       page = a.pages.build(name: "Page 1")
