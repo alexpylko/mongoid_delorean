@@ -52,19 +52,33 @@ describe Mongoid::Delorean::Trackable do
       version.altered_attributes.should_not include("updated_at")
     end
 
-    it "does not track attr_changes" do
-      u = User.create!(name: "Mark")
-      u.update_attributes(age: 36)
-      version = u.versions.last
-      version.altered_attributes.should_not include(Mongoid::Delorean.config.attr_changes_name.to_s)
-    end
+    describe "save changes to attr_changes field" do
 
-    it "save attr_changes to record" do
-      u = User.create!(name: "Mark")
-      u.update_attributes(age: 36)
-      version = u.versions.last
-      u.attr_changes.blank?.should be_false
-      u.attr_changes.first[:changes].should eql({"age" => [nil, 36]})
+      it "does not track attr_changes" do
+        u = User.create!(name: "Mark")
+        u.update_attributes(age: 36)
+        version = u.versions.last
+        version.altered_attributes.should_not include(Mongoid::Delorean.config.attr_changes_name.to_s)
+      end
+
+      it "save attr_changes to record" do
+        u = User.create!(name: "Mark")
+        u.update_attributes(age: 36)
+        version = u.versions.last
+        u.reload
+        u.attr_changes.blank?.should be_false
+        u.attr_changes.first["changes"].should eql({"age" => [nil, 36]})
+      end
+
+      it "save few attr_changes to record" do
+        u = User.create!(name: "Mark")
+        u.update_attributes(age: 36)
+        u.update_attributes(age: 63)
+        u.reload
+        u.attr_changes.count.should == 2
+        u.attr_changes.first["changes"].should eql({"age" => [nil, 36]})
+        u.attr_changes.last["changes"].should eql({"age" => [36, 63]})
+      end
     end
 
     it "tracks the changes that were made" do

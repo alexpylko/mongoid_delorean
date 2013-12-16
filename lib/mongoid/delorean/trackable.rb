@@ -38,6 +38,8 @@ module Mongoid
 
           _attributes = self.attributes_with_relations
           _attributes.merge!("version" => _version)
+          _attributes.delete(Mongoid::Delorean.config.attr_changes_name.to_s)
+
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
           _changes.delete(Mongoid::Delorean.config.attr_changes_name.to_s)
@@ -49,13 +51,13 @@ module Mongoid
 
           if action == 'update'
             _changes.delete("version")
-            attr_changes = self[Mongoid::Delorean.config.attr_changes_name] || []
-            attr_changes << {
+            _chg = self.send(Mongoid::Delorean.config.attr_changes_name) || []
+            _chg << {
               version: _version,
               changes: _changes,
               created_at: tracker.created_at,
             }
-            self[Mongoid::Delorean.config.attr_changes_name] = attr_changes
+            self.send("#{Mongoid::Delorean.config.attr_changes_name}=", _chg)
           end
         end
 
