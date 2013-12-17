@@ -265,16 +265,40 @@ describe Mongoid::Delorean::Trackable do
       it "embeds with cascade callbacks" do
         a = Article.new(name: "Article 1")
         a.authors.build(name: "name1")
+        a.authors.build(name: "name2")
         a.save!
 
-        a.authors.first.name = "name2"
+        a.authors[0].name = "name1 changed"
+        a.authors[1].name = "name2 changed"
         a.save!
 
         a.reload
         a.attr_changes.last["changes"]["authors"].should eql(
-          [{"name"=>["name1", "name2"]}]
+          [
+            {"name"=>["name1", "name1 changed"]},
+            {"name"=>["name2", "name2 changed"]}
+          ]
         )
       end
+
+      it "embeds with cascade callbacks" do
+        a = Article.new(name: "Article 1")
+        a.authors = [{name: "name1"}, {name: "name2"}]
+        a.save!
+
+        a.authors[0].name = "name1 changed"
+        a.authors[1].name = "name2 changed"
+        a.save!
+
+        a.reload
+        a.attr_changes.last["changes"]["authors"].should eql(
+          [
+            {"name"=>["name1", "name1 changed"]},
+            {"name"=>["name2", "name2 changed"]}
+          ]
+        )
+      end
+
     end
 
     it "saves parent versions when saving embedded documents multiple levels deep" do

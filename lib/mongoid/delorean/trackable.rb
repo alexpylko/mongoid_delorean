@@ -42,7 +42,6 @@ module Mongoid
 
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
-          _changes.delete(Mongoid::Delorean.config.attr_changes_name.to_s)
 
           tracker = Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes, action: action)
           self.version = _version
@@ -119,7 +118,9 @@ module Mongoid
         def changes_with_relations
           _changes = self.changes.dup
 
-          %w{version updated_at created_at}.each do |col|
+          ignored = ["version", "updated_at", "created_at",
+            Mongoid::Delorean.config.attr_changes_name.to_s]
+          ignored.each do |col|
             _changes.delete(col)
             _changes.delete(col.to_sym)
           end
@@ -144,6 +145,7 @@ module Mongoid
 
         def attributes_with_relations
           _attributes = self.attributes.dup
+          _attributes.delete(Mongoid::Delorean.config.attr_changes_name.to_s)
 
           relation_attrs = {}
           self.embedded_relations.each do |name, details|
@@ -154,7 +156,6 @@ module Mongoid
               relation_attrs[name] = []
               r_attrs = relation.map {|o| o.attributes_with_relations}
               relation_attrs[name] << r_attrs unless r_attrs.empty?
-              r_changes = relation.map {|o| o.changes}
               relation_attrs[name].flatten!
             end
           end
