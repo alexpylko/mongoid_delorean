@@ -136,7 +136,12 @@ module Mongoid
               relation_changes[name] << r_changes unless r_changes.empty?
               relation_changes[name].flatten!
             end
-            relation_changes.delete(name) if relation_changes[name].empty?
+
+            # remove embedded relations if all changes is empty
+            c = relation_changes[name]
+            if c.empty? || (c.is_a?(Array) && !c.empty? && c.first.is_a?(Hash) && c.map{|h| h.size}.sum == 0)
+              relation_changes.delete(name)
+            end
           end
 
           _changes.merge!(relation_changes)

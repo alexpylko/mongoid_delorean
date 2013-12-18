@@ -203,7 +203,7 @@ describe Mongoid::Delorean::Trackable do
       a.save!
 
       version = a.versions.last
-      version.altered_attributes.should eql({"pages"=>[{"sections"=>[{}], "footer"=>{"_id"=>[nil, footer.id], "content"=>[nil, "some footer text"]}}], "version"=>[3, 4]})
+      version.altered_attributes.should eql({"pages"=>[{"footer"=>{"_id"=>[nil, footer.id], "content"=>[nil, "some footer text"]}}], "version"=>[3, 4]})
     end
 
     it "tracks the full set of attributes at the time of saving" do
@@ -299,6 +299,18 @@ describe Mongoid::Delorean::Trackable do
         )
       end
 
+      it "empty unchanged embeds" do
+        a = Article.new(name: "Article 1")
+        a.authors.build(name: "name1")
+        a.authors.build(name: "name2")
+        a.save!
+
+        a.name = "Article 2"
+        a.save!
+
+        a.reload
+        a.attr_changes.last["changes"].keys.include?("authors").should be_false
+      end
     end
 
     it "saves parent versions when saving embedded documents multiple levels deep" do
