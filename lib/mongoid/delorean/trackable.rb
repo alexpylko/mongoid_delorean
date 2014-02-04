@@ -119,9 +119,10 @@ module Mongoid
           _changes = self.changes.dup
 
           ignored = ["version", "updated_at", "created_at",
-            Mongoid::Delorean.config.attr_changes_name.to_s]
+            Mongoid::Delorean.config.attr_changes_name.to_s] +
+            Mongoid::Delorean.config.ignored_fields
           ignored.each do |col|
-            _changes.delete(col)
+            _changes.delete(col.to_s)
             _changes.delete(col.to_sym)
           end
 

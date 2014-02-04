@@ -80,3 +80,12 @@ class User
 
   validates :email, format: { with: /.+@.+\..+/, allow_nil: true }
 end
+
+class Project
+  include Mongoid::Document
+  include Mongoid::Timestamps
+  include Mongoid::Delorean::Trackable
+
+  field :name, type: String
+  field :custom_attrs, type: Hash
+end

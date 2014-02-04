@@ -52,6 +52,20 @@ describe Mongoid::Delorean::Trackable do
       version.altered_attributes.should_not include("updated_at")
     end
 
+    it "does not track ignored fields changes" do
+      Mongoid::Delorean.config.ignored_fields = [:custom_attrs]
+
+      p = Project.create!(name: "Mark", custom_attrs: {test: 'foo'})
+      version = p.versions.last
+      version.altered_attributes.should_not include("custom_attrs")
+
+      Mongoid::Delorean.config.ignored_fields = []
+      p.update_attributes(name: "John", custom_attrs: {test: 'bar'})
+
+      version = p.versions.last
+      version.altered_attributes.should include("custom_attrs")
+    end
+
     describe "save changes to attr_changes field" do
 
       it "does not track attr_changes" do
