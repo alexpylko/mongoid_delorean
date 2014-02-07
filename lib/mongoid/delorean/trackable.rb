@@ -41,6 +41,8 @@ module Mongoid
           _attributes.delete(Mongoid::Delorean.config.attr_changes_name.to_s)
 
           _changes = self.changes_with_relations.dup
+          return true if action == 'update' && _changes.blank?
+
           _changes.merge!("version" => [self.version_was, _version])
 
           tracker = Mongoid::Delorean.tracker_class.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes, action: action)
