@@ -40,8 +40,8 @@ module Mongoid
           _attributes.merge!("version" => _version)
           _attributes.delete(Mongoid::Delorean.config.attr_changes_name.to_s)
 
-          _changes = self.changes_with_relations.dup
-          return true if action == 'update' && _changes.blank?
+          # _changes = self.changes_with_relations.dup
+          # return true if action == 'update' && _changes.blank?
 
           _changes.merge!("version" => [self.version_was, _version])
 

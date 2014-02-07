@@ -1,6 +1,6 @@
 # Mongoid::Delorean
 
-Travis
+[![Build Status](https://travis-ci.org/tonic20/mongoid_delorean.png?branch=master)](https://travis-ci.org/tonic20/mongoid_delorean)
 
 A simple Mongoid 3 versioning system that works with embedded documents.
 
