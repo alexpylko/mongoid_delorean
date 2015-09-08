@@ -50,7 +50,7 @@ module Mongoid
 
           @__track_changes = false
 
-          if action == 'update'
+          if action == 'update' or action == 'create'
             _changes.delete("version")
             _chg = self.send(Mongoid::Delorean.config.attr_changes_name) || []
             _chg << {
